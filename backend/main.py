@@ -27,8 +27,14 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # Initialize FastAPI
 app = FastAPI(title="Objets Perdus - Festival API")
 
-# Serve frontend static files at root
-app.mount("/", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "../frontend"), html=True), name="static")
+# Serve frontend static files at /static
+app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "../frontend")), name="static")
+
+# Serve index.html at root
+from fastapi.responses import FileResponse
+@app.get("/")
+def root():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "../frontend/index.html"))
 
 # CORS middleware
 app.add_middleware(
