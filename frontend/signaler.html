@@ -98,16 +98,10 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="foundContact" class="form-label">Contact (nom, email ou téléphone) <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="foundContact" name="contact" required placeholder="Ex : Jean Dupont, 06 12 34 56 78 ou jean@email.com">
-                                <div class="form-text">Ces informations serviront à contacter la personne qui a trouvé l'objet.</div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="foundPhoto" class="form-label">Photo de l'objet</label>
-                                <input class="form-control" type="file" id="foundPhoto" name="photo" accept="image/*" capture="environment">
+                                <label for="foundImage" class="form-label">Photo de l'objet</label>
+                                <input class="form-control" type="file" id="foundImage" name="image" accept="image/*" capture="environment">
                                 <div class="form-text">Une photo claire aide à l'identification de l'objet.</div>
-                                <img id="photoPreview" class="preview-image" alt="Aperçu de l'image" style="display: none; max-width: 100%; margin-top: 10px;">
+                                <img id="foundPreview" class="preview-image" alt="Aperçu de l'image">
                             </div>
                             
                             <div class="mb-4">
@@ -229,13 +223,8 @@
         function showForm(type) {
             const lostForm = document.getElementById('lostForm');
             const foundForm = document.getElementById('foundForm');
-            const alertInfo = document.querySelector('.alert-info');
-            
             if (lostForm) lostForm.style.display = type === 'lost' ? 'block' : 'none';
             if (foundForm) foundForm.style.display = type === 'found' ? 'block' : 'none';
-            
-            // Masquer l'alerte d'information
-            if (alertInfo) alertInfo.style.display = 'none';
         }
         
         // Preview uploaded photo
@@ -279,7 +268,6 @@
             const lostBtn = document.getElementById('lostBtn');
             const foundPhoto = document.getElementById('foundPhoto');
             const addAnotherBtn = document.getElementById('addAnotherBtn');
-            const alertInfo = document.querySelector('.alert-info');
             
             // Vérifier l'existence des éléments avant d'ajouter les écouteurs
             if (foundBtn) foundBtn.addEventListener('change', () => showForm('found'));
@@ -290,17 +278,6 @@
             
             // Initialize success modal
             initializeModals();
-            
-            // S'assurer que le formulaire par défaut est affiché correctement
-            if (foundBtn && foundBtn.checked) {
-                showForm('found');
-            } else if (lostBtn && lostBtn.checked) {
-                showForm('lost');
-            } else if (foundBtn) {
-                // Par défaut, sélectionner le formulaire d'objet trouvé
-                foundBtn.checked = true;
-                showForm('found');
-            }
             
             // Add another item button
             if (addAnotherBtn) addAnotherBtn.addEventListener('click', function() {
@@ -424,7 +401,6 @@
             formData.append('description', description);
             formData.append('date', date);
             formData.append('details', document.getElementById('foundDetails').value.trim() || 'Aucun détail');
-            formData.append('contact', document.getElementById('foundContact').value.trim());
             
             const photoInput = document.getElementById('foundPhoto');
             if (photoInput.files.length > 0) {
