@@ -1,4 +1,5 @@
 [build]
+root = "/app"
 start = "uvicorn backend.main:app --host 0.0.0.0 --port 8000"
 
 [build.dependencies]
@@ -15,7 +16,12 @@ start = "uvicorn backend.main:app --host 0.0.0.0 --port 8000"
 web = 8000
 
 [build.env]
-PYTHONPATH = "."
+PYTHONPATH = "/app"
+DATABASE_URL = "sqlite:///./app.db"
+SECRET_KEY = "your-secret-key-here"
+ENVIRONMENT = "production"
+STATIC_FILES_PATH = "/app/frontend/dist"
+MEDIA_FILES_PATH = "/app/uploads"
 
 [build.files]
 include = ["backend/**", "frontend/**", "requirements.txt"]
