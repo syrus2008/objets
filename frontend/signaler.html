@@ -238,7 +238,7 @@
             });
             
             // Image preview for found items
-            const foundPhotoInput = document.getElementById('foundPhoto');
+            const foundPhotoInput = document.getElementById('foundImage');
             const foundPreview = document.getElementById('foundPreview');
             
             foundPhotoInput.addEventListener('change', function() {
@@ -383,6 +383,10 @@
             }
             
             successModal.show();
+            successModal._element.addEventListener('hidden.bs.modal', function handler() {
+                successModal._element.removeEventListener('hidden.bs.modal', handler);
+                window.location.href = '/index.html';
+            });
         }
     </script>
 </body>
