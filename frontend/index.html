@@ -1,104 +1,45 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Système d'Objets Perdus et Trouvés</title>
+    <title>Objets Perdus - Festival</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header>
-        <h1>Système d'Objets Perdus et Trouvés</h1>
-        <nav>
-            <button id="foundBtn">Déclarer un objet trouvé</button>
-            <button id="lostBtn">Déclarer un objet perdu</button>
-            <button id="listBtn">Liste des objets</button>
-            <button id="matchesBtn">Associations possibles</button>
-        </nav>
-    </header>
+    <h1>Objets Perdus & Trouvés</h1>
 
-    <main>
-        <!-- Formulaire d'objet trouvé -->
-        <section id="foundForm" class="form-section hidden">
-            <h2>Déclaration d'objet trouvé</h2>
-            <form id="foundItemForm">
-                <div class="form-group">
-                    <label for="foundDescription">Description de l'objet</label>
-                    <textarea id="foundDescription" required></textarea>
-                </div>
-                <div class="photo-group">
-                    <label>Photo de l'objet</label>
-                    <div class="photo-options">
-                        <input type="file" id="foundPhoto" accept="image/*" required>
-                        <button type="button" id="takePhoto">Prendre une photo</button>
-                    </div>
-                    <div id="cameraPreview"></div>
-                </div>
-                <div class="form-group">
-                    <label for="foundDate">Date et heure de trouvaille</label>
-                    <input type="datetime-local" id="foundDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="foundInfo">Informations supplémentaires</label>
-                    <textarea id="foundInfo"></textarea>
-                </div>
-                <button type="submit">Déclarer l'objet</button>
-            </form>
-        </section>
+    <section>
+        <h2>Déclarer un objet trouvé</h2>
+        <form id="foundForm" enctype="multipart/form-data">
+            <input type="text" name="description" placeholder="Description" required><br>
+            <input type="datetime-local" name="datetime" required><br>
+            <input type="text" name="content" placeholder="Contenu (optionnel)"><br>
+            <input type="file" name="file" accept="image/*" required><br>
+            <button type="submit">Envoyer</button>
+        </form>
+    </section>
 
-        <!-- Formulaire d'objet perdu -->
-        <section id="lostForm" class="form-section hidden">
-            <h2>Déclaration d'objet perdu</h2>
-            <form id="lostItemForm">
-                <div class="form-group">
-                    <label for="lostDescription">Description de l'objet</label>
-                    <textarea id="lostDescription" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="lostDate">Date et heure estimée de perte</label>
-                    <input type="datetime-local" id="lostDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="lostInfo">Informations supplémentaires</label>
-                    <textarea id="lostInfo"></textarea>
-                </div>
-                <button type="submit">Déclarer l'objet</button>
-            </form>
-        </section>
+    <section>
+        <h2>Déclarer un objet perdu</h2>
+        <form id="lostForm">
+            <input type="text" name="description" placeholder="Description" required><br>
+            <input type="datetime-local" name="datetime" required><br>
+            <input type="text" name="content" placeholder="Contenu (optionnel)"><br>
+            <button type="submit">Envoyer</button>
+        </form>
+    </section>
 
-        <!-- Liste des objets -->
-        <section id="listSection" class="list-section hidden">
-            <h2>Liste des objets</h2>
-            <div class="filters">
-                <select id="typeFilter">
-                    <option value="">Tous les types</option>
-                    <option value="trouvé">Objets trouvés</option>
-                    <option value="perdu">Objets perdus</option>
-                </select>
-                <select id="statusFilter">
-                    <option value="">Tous les statuts</option>
-                    <option value="active">Actifs</option>
-                    <option value="returned">Restitués</option>
-                </select>
-                <input type="text" id="searchInput" placeholder="Rechercher...">
-            </div>
-            <div id="itemsList"></div>
-            <button id="exportBtn">Exporter la liste</button>
-        </section>
+    <section>
+        <h2>Objets trouvés</h2>
+        <div id="foundList"></div>
+    </section>
 
-        <!-- Associations possibles -->
-        <section id="matchesSection" class="matches-section hidden">
-            <h2>Associations possibles</h2>
-            <div id="matchesList"></div>
-        </section>
-    </main>
+    <section>
+        <h2>Objets perdus</h2>
+        <div id="lostList"></div>
+    </section>
 
-    <footer>
-        <p>&copy; 2025 Festival Lost & Found System</p>
-    </footer>
-
-    <script src="js/auth.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/admin.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
