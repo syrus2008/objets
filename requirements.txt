@@ -7,8 +7,3 @@ passlib==1.7.4
 python-magic==0.4.27
 python-dotenv==1.0.0
 starlette==0.27.0
-python-multipart==0.0.6
-<<<<<<< HEAD
-python-dotenv==1.0.0
-=======
->>>>>>> 4b6f3fc372f3cc88130fc9a515a05ef70f4d3d6f
