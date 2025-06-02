@@ -1,45 +1,197 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Objets Perdus - Festival</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Objets Perdus/Trouvés - Festival</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>Objets Perdus & Trouvés</h1>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">Objets Perdus/Trouvés</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html"><i class="bi bi-house-door"></i> Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="signaler.html"><i class="bi bi-plus-circle"></i> Signaler un objet</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <button id="adminLoginBtn" class="btn btn-outline-light me-2">
+                        <i class="bi bi-shield-lock"></i> Admin
+                    </button>
+                    <div class="dropdown" id="adminDropdown" style="display: none;">
+                        <button class="btn btn-danger dropdown-toggle" type="button" id="adminMenu" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-badge"></i> Admin
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" id="exportJson">Exporter en JSON</a></li>
+                            <li><a class="dropdown-item" href="#" id="exportCsv">Exporter en CSV</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" id="logoutBtn">Déconnexion</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-    <section>
-        <h2>Déclarer un objet trouvé</h2>
-        <form id="foundForm" enctype="multipart/form-data">
-            <input type="text" name="description" placeholder="Description" required><br>
-            <input type="datetime-local" name="datetime" required><br>
-            <input type="text" name="content" placeholder="Contenu (optionnel)"><br>
-            <input type="file" name="file" accept="image/*" required><br>
-            <button type="submit">Envoyer</button>
-        </form>
-    </section>
+    <div class="container my-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="text-center mb-4">Objets Perdus et Trouvés</h1>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> Consultez la liste des objets perdus et trouvés lors du festival.
+                    Si vous avez perdu ou trouvé un objet, cliquez sur le bouton ci-dessous.
+                </div>
+                <div class="d-flex justify-content-center gap-2 mb-4">
+                    <a href="signaler.html" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Signaler un objet perdu/trouvé
+                    </a>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" id="itemsTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="found-tab" data-bs-toggle="tab" data-bs-target="#found" type="button" role="tab">
+                                    Objets Trouvés
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="lost-tab" data-bs-toggle="tab" data-bs-target="#lost" type="button" role="tab">
+                                    Objets Perdus
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="itemsTabContent">
+                            <div class="tab-pane fade show active" id="found" role="tabpanel" aria-labelledby="found-tab">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="showReturnedFound">
+                                        <label class="form-check-label" for="showReturnedFound">Afficher les objets restitués</label>
+                                    </div>
+                                </div>
+                                <div id="foundItems" class="row g-4">
+                                    <div class="col-12 text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Chargement...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="lost" role="tabpanel" aria-labelledby="lost-tab">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="showReturnedLost">
+                                        <label class="form-check-label" for="showReturnedLost">Afficher les objets restitués</label>
+                                    </div>
+                                </div>
+                                <div id="lostItems" class="row g-4">
+                                    <div class="col-12 text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Chargement...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <section>
-        <h2>Déclarer un objet perdu</h2>
-        <form id="lostForm">
-            <input type="text" name="description" placeholder="Description" required><br>
-            <input type="datetime-local" name="datetime" required><br>
-            <input type="text" name="content" placeholder="Contenu (optionnel)"><br>
-            <button type="submit">Envoyer</button>
-        </form>
-    </section>
+    <!-- Admin Login Modal -->
+    <div class="modal fade" id="adminLoginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Connexion Admin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Nom d'utilisateur</label>
+                        <input type="text" class="form-control" id="username" value="admin" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Mot de passe</label>
+                        <input type="password" class="form-control" id="password" required>
+                    </div>
+                    <div id="loginError" class="alert alert-danger d-none">
+                        Identifiants incorrects
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="loginBtn">Se connecter</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <section>
-        <h2>Objets trouvés</h2>
-        <div id="foundList"></div>
-    </section>
+    <!-- Item Details Modal -->
+    <div class="modal fade" id="itemDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itemModalTitle">Détails de l'objet</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div id="itemImageContainer" class="mb-3 text-center">
+                                <img id="itemImage" src="" class="img-fluid rounded" alt="Image de l'objet" style="max-height: 300px;">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 id="itemDescription"></h4>
+                            <p><i class="bi bi-calendar-event"></i> <strong>Date :</strong> <span id="itemDate"></span></p>
+                            <p><i class="bi bi-info-circle"></i> <strong>Détails :</strong> <span id="itemDetails"></span></p>
+                            <p><i class="bi bi-arrow-left-right"></i> <strong>Statut :</strong> <span id="itemStatus" class="badge bg-primary"></span></p>
+                            <div id="matchesSection" class="mt-4">
+                                <h5><i class="bi bi-link-45deg"></i> Correspondances possibles :</h5>
+                                <div id="matchesList" class="list-group mt-2">
+                                    <!-- Matches will be added here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    <div id="adminActions" style="display: none;">
+                        <button type="button" class="btn btn-success me-2" id="markReturnedBtn">
+                            <i class="bi bi-check-circle"></i> Marquer comme restitué
+                        </button>
+                        <button type="button" class="btn btn-danger" id="deleteItemBtn">
+                            <i class="bi bi-trash"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <section>
-        <h2>Objets perdus</h2>
-        <div id="lostList"></div>
-    </section>
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">© 2023 Festival des Objets Perdus - Tous droits réservés</p>
+        </div>
+    </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/script.js"></script>
 </body>
 </html>
