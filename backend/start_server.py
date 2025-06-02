@@ -4,6 +4,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from typing import List
 import uvicorn
 import os
+import sys
 from dotenv import load_dotenv
 
 # Ajouter le dossier parent au PATH Python
@@ -14,6 +15,12 @@ from app.storage import Storage
 
 # Charger les variables d'environnement
 load_dotenv()
+
+# Créer le dossier de stockage s'il n'existe pas
+STORAGE_PATH = os.getenv("STORAGE_PATH", "storage/storage.json")
+storage_dir = os.path.dirname(STORAGE_PATH)
+if storage_dir and not os.path.exists(storage_dir):
+    os.makedirs(storage_dir)
 
 app = FastAPI(title="Festival Lost & Found API")
 app.include_router(api.router, prefix="/api")
@@ -27,6 +34,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Serveur statique pour le frontend
+app.mount("/", StaticFiles(directory="../frontend"), name="frontend")
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True)
