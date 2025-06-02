@@ -1,1 +1,1 @@
-web: uvicorn backend.start_server:app --host=0.0.0.0 --port=$PORT
+web: uvicorn start_server:app --host=0.0.0.0 --port=$PORT

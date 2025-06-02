@@ -36,7 +36,7 @@ frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 app.mount("/", StaticFiles(directory=frontend_dir), name="frontend")
 
 # Inclure les routes de l'API
-from app import api_router
+from objectsperdu.app import api_router
 app.include_router(api_router, prefix="/api")
 
 if __name__ == "__main__":
