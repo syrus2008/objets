@@ -13,7 +13,7 @@ import hashlib
 import secrets
 from pathlib import Path
 
-from models import Item, LostItemCreate, FoundItemCreate, ItemType
+from backend.models import Item, LostItemCreate, FoundItemCreate, ItemType
 
 # Configuration
 UPLOAD_FOLDER = "uploads"
