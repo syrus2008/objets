@@ -3,10 +3,10 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from typing import List, Optional
 import os
 from datetime import datetime
-from models import FoundItem, LostItem, SearchResult, ExportParams
-from storage import Storage
-from utils import export_to_csv, export_to_json
-from auth import AuthManager
+from ..models import FoundItem, LostItem, SearchResult, ExportParams
+from .storage import Storage
+from .utils import export_to_csv, export_to_json
+from .auth import AuthManager
 
 router = APIRouter()
 storage = Storage()
