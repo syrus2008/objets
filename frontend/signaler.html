@@ -229,8 +229,13 @@
         function showForm(type) {
             const lostForm = document.getElementById('lostForm');
             const foundForm = document.getElementById('foundForm');
+            const alertInfo = document.querySelector('.alert-info');
+            
             if (lostForm) lostForm.style.display = type === 'lost' ? 'block' : 'none';
             if (foundForm) foundForm.style.display = type === 'found' ? 'block' : 'none';
+            
+            // Masquer l'alerte d'information
+            if (alertInfo) alertInfo.style.display = 'none';
         }
         
         // Preview uploaded photo
@@ -274,6 +279,7 @@
             const lostBtn = document.getElementById('lostBtn');
             const foundPhoto = document.getElementById('foundPhoto');
             const addAnotherBtn = document.getElementById('addAnotherBtn');
+            const alertInfo = document.querySelector('.alert-info');
             
             // Vérifier l'existence des éléments avant d'ajouter les écouteurs
             if (foundBtn) foundBtn.addEventListener('change', () => showForm('found'));
@@ -284,6 +290,17 @@
             
             // Initialize success modal
             initializeModals();
+            
+            // S'assurer que le formulaire par défaut est affiché correctement
+            if (foundBtn && foundBtn.checked) {
+                showForm('found');
+            } else if (lostBtn && lostBtn.checked) {
+                showForm('lost');
+            } else if (foundBtn) {
+                // Par défaut, sélectionner le formulaire d'objet trouvé
+                foundBtn.checked = true;
+                showForm('found');
+            }
             
             // Add another item button
             if (addAnotherBtn) addAnotherBtn.addEventListener('click', function() {
@@ -407,6 +424,7 @@
             formData.append('description', description);
             formData.append('date', date);
             formData.append('details', document.getElementById('foundDetails').value.trim() || 'Aucun détail');
+            formData.append('contact', document.getElementById('foundContact').value.trim());
             
             const photoInput = document.getElementById('foundPhoto');
             if (photoInput.files.length > 0) {
