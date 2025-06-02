@@ -31,10 +31,15 @@ app = FastAPI(title="Objets Perdus - Festival API")
 app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "../frontend")), name="static")
 
 # Serve index.html at root
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 @app.get("/")
 def root():
     return FileResponse(os.path.join(os.path.dirname(__file__), "../frontend/index.html"))
+
+# Redirect /index.html to /
+@app.get("/index.html")
+def redirect_index():
+    return RedirectResponse(url="/")
 
 # CORS middleware
 app.add_middleware(
