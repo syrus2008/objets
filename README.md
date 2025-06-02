@@ -32,9 +32,40 @@ python -m http.server 8000
 1. Créer un compte sur Railway
 2. Connecter votre repository
 3. Déployer l'application
-4. Configurer les variables d'environnement :
-   - ADMIN_PASSWORD : mot de passe admin
-   - STORAGE_PATH : chemin vers le fichier de stockage
+4. Configurer les variables d'environnement dans Railway :
+   - ADMIN_USERNAME=admin
+   - ADMIN_PASSWORD=votre_mot_de_passe_sécurisé
+   - PORT=8000
+   - STORAGE_PATH=storage/storage.json
+
+## Structure du Projet
+
+```
+objetsperdu/
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── api.py
+│   │   ├── models.py
+│   │   ├── storage.py
+│   │   └── utils.py
+│   ├── storage/
+│   │   └── storage.json
+│   ├── uploads/
+│   │   └── .gitkeep
+│   └── start_server.py
+├── frontend/
+│   ├── index.html
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       ├── main.js
+│       ├── auth.js
+│       └── admin.js
+├── Procfile
+├── requirements.txt
+├── .env.example
+└── README.md
 
 ## Structure du Projet
 
