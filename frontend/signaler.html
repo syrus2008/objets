@@ -217,28 +217,48 @@
             const now = new Date();
             // Format as YYYY-MM-DDThh:mm for datetime-local input
             const formattedNow = now.toISOString().slice(0, 16);
+            let successModal = null;
+            
+            // Fonction pour afficher le formulaire souhaité
+            function showForm(type) {
+                document.querySelectorAll('.form-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                if (type === 'found') {
+                    document.getElementById('foundForm').classList.add('active');
+                } else if (type === 'lost') {
+                    document.getElementById('lostForm').classList.add('active');
+                }
+            }
+        
+            // Toggle form sections
+            document.getElementById('foundBtn').addEventListener('change', () => showForm('found'));
+            document.getElementById('lostBtn').addEventListener('change', () => showForm('lost'));
+            
+            // File input preview
+            document.getElementById('foundPhoto').addEventListener('change', previewFile);
+            
+            // Initialize success modal
+            initializeModals();
+            
+            // Add another item button
+            document.getElementById('addAnotherBtn').addEventListener('click', function() {
+                document.getElementById('foundForm').reset();
+                document.getElementById('lostForm').reset();
+                document.getElementById('foundBtn').checked = true;
+                showForm('found');
+                successModal.hide();
+            });
             
             // Set default date/time for both forms
             document.getElementById('foundDate').value = formattedNow;
             document.getElementById('lostDate').value = formattedNow;
             
-            // Handle form switching
-            document.querySelectorAll('input[name="itemType"]').forEach(radio => {
-                radio.addEventListener('change', function() {
-                    document.querySelectorAll('.form-section').forEach(section => {
-                        section.classList.remove('active');
-                    });
-                    
-                    if (this.id === 'foundBtn') {
-                        document.getElementById('foundForm').classList.add('active');
-                    } else {
-                        document.getElementById('lostForm').classList.add('active');
-                    }
-                });
-            });
+            // Ce code est remplacé par la fonction showForm() maintenant
             
             // Image preview for found items
-            const foundPhotoInput = document.getElementById('foundImage');
+            const foundPhotoInput = document.getElementById('foundPhoto');
             const foundPreview = document.getElementById('foundPreview');
             
             foundPhotoInput.addEventListener('change', function() {
@@ -254,6 +274,37 @@
                     foundPreview.style.display = 'none';
                 }
             });
+            
+            // Initialisation des modals Bootstrap
+            function initializeModals() {
+                const successModalElement = document.getElementById('successModal');
+                if (successModalElement) {
+                    try {
+                        successModal = new bootstrap.Modal(successModalElement);
+                    } catch (error) {
+                        console.error('Erreur d\'initialisation du modal de succès:', error);
+                    }
+                } else {
+                    console.error('Element successModal introuvable dans le DOM');
+                }
+            }
+            
+            // Fonction pour prévisualiser l'image
+            function previewFile() {
+                const preview = document.getElementById('foundPreview');
+                const file = this.files[0];
+                
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.style.display = 'none';
+                }
+            }
             
             // Fonction showSuccess utilisable partout
             function showSuccess(type, responseData) {
@@ -291,10 +342,23 @@
         async function handleFoundSubmit(e) {
             e.preventDefault();
             
+            // Vérification des champs obligatoires côté client
+            const description = document.getElementById('foundDescription').value.trim();
+            const date = document.getElementById('foundDate').value.trim();
+            
+            if (!description) {
+                alert('La description de l\'objet est obligatoire');
+                return;
+            }
+            if (!date) {
+                alert('La date de découverte est obligatoire');
+                return;
+            }
+            
             const formData = new FormData();
-            formData.append('description', document.getElementById('foundDescription').value);
-            formData.append('date', document.getElementById('foundDate').value);
-            formData.append('details', document.getElementById('foundDetails').value);
+            formData.append('description', description);
+            formData.append('date', date);
+            formData.append('details', document.getElementById('foundDetails').value.trim() || 'Aucun détail');
             
             const photoInput = document.getElementById('foundPhoto');
             if (photoInput.files.length > 0) {
@@ -302,7 +366,9 @@
             }
             
             try {
-                const response = await fetch(`${window.location.hostname === 'localhost' ? 'http://localhost:8000' : ''}/api/found`, {
+                const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://objets-objects2.up.railway.app';
+                
+                const response = await fetch(`${API_BASE_URL}/api/found`, {
                     method: 'POST',
                     body: formData
                 });
@@ -323,14 +389,37 @@
         async function handleLostSubmit(e) {
             e.preventDefault();
             
+            // Vérification des champs obligatoires côté client
+            const description = document.getElementById('lostDescription').value.trim();
+            const date = document.getElementById('lostDate').value.trim();
+            const contact = document.getElementById('lostContact').value.trim();
+            const details = document.getElementById('lostDetails').value.trim();
+            
+            if (!description) {
+                alert('La description de l\'objet est obligatoire');
+                return;
+            }
+            if (!date) {
+                alert('La date de perte est obligatoire');
+                return;
+            }
+            if (!contact) {
+                alert('Un contact est obligatoire');
+                return;
+            }
+            
+            // Construction du payload avec tous les champs requis
             const itemData = {
-                description: document.getElementById('lostDescription').value,
-                date: document.getElementById('lostDate').value,
-                details: document.getElementById('lostDetails').value,
-                contact: document.getElementById('lostContact').value
+                description: description,
+                date: date,
+                details: details || 'Aucun détail supplémentaire',
+                contact: contact
             };
+            
             try {
-                const response = await fetch(`${window.location.hostname === 'localhost' ? 'http://localhost:8000' : ''}/api/lost`, {
+                const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://objets-objects2.up.railway.app';
+                
+                const response = await fetch(`${API_BASE_URL}/api/lost`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
