@@ -1,4 +1,4 @@
-import pandas as pd
+import json
 from typing import List, Optional
 from datetime import datetime
 from models import FoundItem, LostItem, ExportParams
@@ -19,31 +19,46 @@ def export_to_csv(storage: Storage, params: ExportParams) -> dict:
         found_items = [item for item in found_items if item.status == params.status]
         lost_items = [item for item in lost_items if item.status == params.status]
 
-    # Créer les DataFrames
-    found_df = pd.DataFrame([item.dict() for item in found_items])
-    lost_df = pd.DataFrame([item.dict() for item in lost_items])
+    # Préparer les données pour le CSV
+    data = []
+    for item in found_items:
+        data.append({
+            "id": item.id,
+            "type": "trouvé",
+            "description": item.description,
+            "date": item.date_found.isoformat(),
+            "status": item.status,
+            "additional_info": item.additional_info,
+            "photo_filename": item.photo_filename
+        })
 
-    # Ajouter une colonne de type
-    found_df["type"] = "trouvé"
-    lost_df["type"] = "perdu"
+    for item in lost_items:
+        data.append({
+            "id": item.id,
+            "type": "perdu",
+            "description": item.description,
+            "date": item.estimated_loss_date.isoformat(),
+            "status": item.status,
+            "additional_info": item.additional_info
+        })
 
-    # Concaténer les DataFrames
-    combined_df = pd.concat([found_df, lost_df], ignore_index=True)
-
-    # Convertir les dates en format lisible
-    combined_df["date"] = combined_df.apply(
-        lambda row: row["date_found"] if row["type"] == "trouvé" else row["estimated_loss_date"],
-        axis=1
-    )
-
-    # Sélectionner les colonnes pertinentes
-    columns = ["id", "type", "description", "date", "status", "additional_info"]
-    if "photo_filename" in combined_df.columns:
-        columns.append("photo_filename")
-
-    # Exporter en CSV
+    # Créer le CSV
     filename = f"objets_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-    combined_df[columns].to_csv(filename, index=False, encoding="utf-8", sep=",")
+    with open(filename, 'w', encoding='utf-8') as f:
+        # Écrire l'en-tête
+        f.write("id,type,description,date,status,additional_info,photo_filename\n")
+        # Écrire les données
+        for row in data:
+            f.write(",".join([
+                str(row["id"]),
+                row["type"],
+                row["description"].replace(",", "").replace("\n", " "),
+                row["date"],
+                row["status"],
+                row["additional_info"].replace(",", "").replace("\n", " ") if row["additional_info"] else "",
+                row.get("photo_filename", "")
+            ]) + "\n")
+    
     return {"filename": filename}
 
 def export_to_json(storage: Storage, params: ExportParams) -> dict:
@@ -61,15 +76,32 @@ def export_to_json(storage: Storage, params: ExportParams) -> dict:
         found_items = [item for item in found_items if item.status == params.status]
         lost_items = [item for item in lost_items if item.status == params.status]
 
-    # Ajouter le type à chaque élément
-    found_items = [{**item.dict(), "type": "trouvé"} for item in found_items]
-    lost_items = [{**item.dict(), "type": "perdu"} for item in lost_items]
+    # Préparer les données
+    data = []
+    for item in found_items:
+        data.append({
+            "id": item.id,
+            "type": "trouvé",
+            "description": item.description,
+            "date": item.date_found.isoformat(),
+            "status": item.status,
+            "additional_info": item.additional_info,
+            "photo_filename": item.photo_filename
+        })
 
-    # Combiner les listes
-    combined_items = found_items + lost_items
+    for item in lost_items:
+        data.append({
+            "id": item.id,
+            "type": "perdu",
+            "description": item.description,
+            "date": item.estimated_loss_date.isoformat(),
+            "status": item.status,
+            "additional_info": item.additional_info
+        })
 
-    # Exporter en JSON
+    # Créer le JSON
     filename = f"objets_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(combined_items, f, ensure_ascii=False, indent=2, default=str)
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    
     return {"filename": filename}
