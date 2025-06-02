@@ -36,9 +36,12 @@ from fastapi.responses import FileResponse, RedirectResponse
 def root():
     return FileResponse(os.path.join(os.path.dirname(__file__), "../frontend/index.html"))
 
-# Redirect /index.html to /
-@app.get("/index.html")
-def redirect_index():
+# Serve any .html file from frontend directory dynamically
+@app.get("/{page_name}.html")
+def serve_html(page_name: str):
+    file_path = os.path.join(os.path.dirname(__file__), "../frontend", f"{page_name}.html")
+    if os.path.exists(file_path):
+        return FileResponse(file_path)
     return RedirectResponse(url="/")
 
 # CORS middleware
