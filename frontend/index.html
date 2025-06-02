@@ -146,7 +146,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="itemModalTitle">Détails de l'objet</h5>
+                    <h5 class="modal-title" id="itemDetailsTitle">Détails de l'objet</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -163,13 +163,18 @@
                                     <th scope="col">Contact</th>
                                 </tr>
                                 <tr>
-                                    <td id="itemDescription"></td>
-                                    <td id="itemContact"></td>
+                                    <td id="itemDetailsDescription"></td>
+                                    <td id="itemDetailsContact"></td>
                                 </tr>
                             </table>
-                            <p><i class="bi bi-calendar-event"></i> <strong>Date :</strong> <span id="itemDate"></span></p>
+                            <p><i class="bi bi-calendar-event"></i> <strong>Date :</strong> <span id="itemDetailsDate"></span></p>
                             <p><i class="bi bi-info-circle"></i> <strong>Détails :</strong> <span id="itemDetails"></span></p>
-                            <p><i class="bi bi-arrow-left-right"></i> <strong>Statut :</strong> <span id="itemStatus" class="badge bg-primary"></span></p>
+                            <p><i class="bi bi-arrow-left-right"></i> <strong>Statut :</strong> <span id="itemDetailsStatus" class="badge bg-primary"></span></p>
+                            <div id="contactRow" class="d-flex align-items-center mb-2">
+                                <i class="bi bi-person-lines-fill me-2"></i>
+                                <strong>Contact :</strong>
+                                <span id="itemDetailsContact" class="ms-2"></span>
+                            </div>
                             <div id="matchesSection" class="mt-4">
                                 <h5><i class="bi bi-link-45deg"></i> Correspondances possibles :</h5>
                                 <div id="matchesList" class="list-group mt-2">

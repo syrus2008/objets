@@ -29,19 +29,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Bootstrap modals after DOM is loaded
     const adminLoginModalElem = document.getElementById('adminLoginModal');
     if (adminLoginModalElem) {
-        adminLoginModal = new bootstrap.Modal(adminLoginModalElem);
+        try {
+            adminLoginModal = new bootstrap.Modal(adminLoginModalElem);
+        } catch (error) {
+            console.error('Erreur lors de l\'initialisation du modal adminLogin:', error);
+        }
     } else {
-        console.error('adminLoginModal element not found');
+        console.warn('adminLoginModal element not found - probablement pas sur la page principale');
     }
     
     const itemDetailsModalElem = document.getElementById('itemDetailsModal');
     if (itemDetailsModalElem) {
-        itemDetailsModal = new bootstrap.Modal(itemDetailsModalElem);
+        try {
+            itemDetailsModal = new bootstrap.Modal(itemDetailsModalElem);
+        } catch (error) {
+            console.error('Erreur lors de l\'initialisation du modal itemDetails:', error);
+        }
     } else {
-        console.error('itemDetailsModal element not found');
+        console.warn('itemDetailsModal element not found - probablement pas sur la page principale');
     }
     
-    loadItems();
+    // Initialisations à effectuer uniquement sur les pages concernées
+    if (foundItemsContainer || lostItemsContainer) {
+        loadItems(); // Charger les items uniquement si on est sur une page qui les affiche
+    }
+    
     setupEventListeners();
     checkAuth();
 });
@@ -49,20 +61,101 @@ document.addEventListener('DOMContentLoaded', () => {
 // Event Listeners
 function setupEventListeners() {
     // Toggle returned items
-    showReturnedFound.addEventListener('change', () => loadItems('found'));
-    showReturnedLost.addEventListener('change', () => loadItems('lost'));
+    showReturnedFound?.addEventListener('change', () => loadItems('found'));
+    showReturnedLost?.addEventListener('change', () => loadItems('lost'));
     
     // Admin login/logout
-    adminLoginBtn.addEventListener('click', () => adminLoginModal.show());
-    loginBtn.addEventListener('click', handleLogin);
-    logoutBtn.addEventListener('click', handleLogout);
-    passwordInput.addEventListener('keypress', (e) => {
+    adminLoginBtn?.addEventListener('click', () => {
+        if (adminLoginModal) {
+            adminLoginModal.show();
+        } else {
+            console.warn('adminLoginModal n\'est pas disponible');
+        }
+    });
+    loginBtn?.addEventListener('click', handleLogin);
+    logoutBtn?.addEventListener('click', handleLogout);
+    passwordInput?.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleLogin();
     });
     
     // Export buttons
     exportJsonBtn?.addEventListener('click', () => exportData('json'));
     exportCsvBtn?.addEventListener('click', () => exportData('csv'));
+}
+
+// Export Data
+async function exportData(type) {
+    if (!isAdmin) {
+        showNotification('Vous devez être connecté en tant qu\'administrateur', 'warning');
+        return;
+    }
+    
+    try {
+        // Récupérer toutes les données
+        const [foundResponse, lostResponse] = await Promise.all([
+            fetch(`${API_BASE_URL}/api/found`),
+            fetch(`${API_BASE_URL}/api/lost`)
+        ]);
+        
+        const foundData = await foundResponse.json();
+        const lostData = await lostResponse.json();
+        
+        // Combiner les items
+        const items = [...foundData.items, ...lostData.items];
+        
+        if (type === 'json') {
+            // Export JSON
+            const dataStr = JSON.stringify(items, null, 2);
+            downloadFile(dataStr, 'objets-perdus-trouves.json', 'application/json');
+        } else if (type === 'csv') {
+            // Export CSV avec champs dynamiques
+            exportToCsv(items);
+        }
+        
+        showNotification(`Export en ${type.toUpperCase()} réussi`, 'success');
+    } catch (error) {
+        console.error('Export error:', error);
+        showNotification('Erreur lors de l\'exportation des données', 'danger');
+    }
+}
+
+function exportToCsv(items) {
+    // Construire dynamiquement la liste des champs
+    const fieldsSet = new Set();
+    
+    // Collecter tous les champs possibles de tous les objets
+    items.forEach(item => {
+        Object.keys(item).forEach(key => fieldsSet.add(key));
+    });
+    
+    const fields = Array.from(fieldsSet);
+    
+    // Créer l'entête CSV
+    let csv = fields.join(',') + '\n';
+    
+    // Ajouter les lignes
+    items.forEach(item => {
+        const values = fields.map(field => {
+            const value = item[field] || '';
+            // Gérer les valeurs qui contiennent des virgules ou des guillemets
+            return typeof value === 'string' && (value.includes(',') || value.includes('"'))
+                ? `"${value.replace(/"/g, '""')}"` 
+                : value;
+        });
+        csv += values.join(',') + '\n';
+    });
+    
+    downloadFile(csv, 'objets-perdus-trouves.csv', 'text/csv;charset=utf-8');
+}
+
+function downloadFile(content, fileName, contentType) {
+    const blob = new Blob([content], { type: contentType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
 }
 
 // Authentication
@@ -129,28 +222,48 @@ function showError(message) {
 // Load Items
 async function loadItems(type = null) {
     try {
-        const [foundResponse, lostResponse] = await Promise.all([
-            fetch(`${API_BASE_URL}/api/found`),
-            fetch(`${API_BASE_URL}/api/lost`)
-        ]);
+        const showReturnedFoundChecked = showReturnedFound?.checked ?? false;
+        const showReturnedLostChecked = showReturnedLost?.checked ?? false;
         
-        const foundData = await foundResponse.json();
-        const lostData = await lostResponse.json();
+        // Vérifier si les conteneurs existent sur cette page
+        const shouldLoadFound = foundItemsContainer !== null && (type === 'found' || type === null);
+        const shouldLoadLost = lostItemsContainer !== null && (type === 'lost' || type === null);
         
-        // Filter returned items based on checkbox state
-        const showReturnedFoundValue = showReturnedFound.checked;
-        const showReturnedLostValue = showReturnedLost.checked;
+        // Préparer les promesses à exécuter
+        const promises = [];
+        const results = {};
         
-        const filteredFound = foundData.items.filter(item => showReturnedFoundValue || !item.returned);
-        const filteredLost = lostData.items.filter(item => showReturnedLostValue || !item.returned);
-        
-        // Display items
-        if (!type || type === 'found') {
-            displayItems(filteredFound, foundItemsContainer, 'found');
+        if (shouldLoadFound) {
+            promises.push(
+                fetch(`${API_BASE_URL}/api/found`)
+                    .then(response => response.json())
+                    .then(data => { results.foundData = data; })
+            );
         }
         
-        if (!type || type === 'lost') {
-            displayItems(filteredLost, lostItemsContainer, 'lost');
+        if (shouldLoadLost) {
+            promises.push(
+                fetch(`${API_BASE_URL}/api/lost`)
+                    .then(response => response.json())
+                    .then(data => { results.lostData = data; })
+            );
+        }
+        
+        if (promises.length === 0) {
+            return; // Aucun conteneur n'existe sur cette page
+        }
+        
+        await Promise.all(promises);
+        
+        // Traiter les résultats
+        if (shouldLoadFound && results.foundData) {
+            const filteredFoundItems = results.foundData.items.filter(item => showReturnedFoundChecked || !item.returned);
+            displayItems(filteredFoundItems, foundItemsContainer, 'found');
+        }
+        
+        if (shouldLoadLost && results.lostData) {
+            const filteredLostItems = results.lostData.items.filter(item => showReturnedLostChecked || !item.returned);
+            displayItems(filteredLostItems, lostItemsContainer, 'lost');
         }
     } catch (error) {
         console.error('Error loading items:', error);
@@ -160,24 +273,32 @@ async function loadItems(type = null) {
 
 // Display Items
 function displayItems(items, container, type) {
-    if (!container) return;
-    
-    if (items.length === 0) {
-        container.innerHTML = `
-            <div class="col-12 text-center">
-                <div class="alert alert-info">
-                    Aucun objet ${type === 'found' ? 'trouvé' : 'perdu'} pour le moment.
-                </div>
-            </div>`;
+    // Vérifier que le conteneur existe
+    if (!container) {
+        console.warn(`Conteneur pour les objets ${type} introuvable`);
         return;
     }
     
-    container.innerHTML = items.map(item => createItemCard(item, type)).join('');
+    container.innerHTML = '';
     
-    // Add event listeners to view buttons
-    document.querySelectorAll(`.view-item-${type}`).forEach(btn => {
-        btn.addEventListener('click', () => showItemDetails(btn.dataset.id, type));
+    if (items.length === 0) {
+        container.innerHTML = `
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> Aucun objet ${type === 'lost' ? 'perdu' : 'trouvé'} pour le moment.
+            </div>
+        `;
+        return;
+    }
+    
+    const row = document.createElement('div');
+    row.className = 'row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4';
+    
+    items.forEach(item => {
+        const card = createItemCard(item, type);
+        row.appendChild(card);
     });
+    
+    container.appendChild(row);
 }
 
 // Create Item Card
@@ -186,101 +307,98 @@ function createItemCard(item, type) {
     const badgeClass = item.returned ? 'bg-secondary' : (type === 'found' ? 'bg-success' : 'bg-warning text-dark');
     const date = new Date(item.date).toLocaleString('fr-FR');
     
-    return `
-        <div class="col-md-6 col-lg-4 mb-4 fade-in">
-            <div class="card item-card h-100">
-                ${item.photo_path ? `
-                    <img src="${API_BASE_URL}/${item.photo_path}" class="card-img-top" alt="${item.description}" 
-                         onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Image+non+disponible'">
-                ` : `
-                    <div class="text-center p-5 bg-light">
-                        <i class="bi bi-image fs-1 text-muted"></i>
-                        <p class="mt-2 mb-0 text-muted">Aucune image</p>
-                    </div>
-                `}
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="card-title mb-0">${item.description}</h5>
-                        <span class="badge ${badgeClass}">${isReturned}</span>
-                    </div>
-                    <p class="card-text text-muted small mb-3">
-                        <i class="bi bi-calendar3"></i> ${date}
-                    </p>
-                    <p class="card-text flex-grow-1">
-                        ${item.details ? item.details.substring(0, 100) + (item.details.length > 100 ? '...' : '') : 'Aucun détail supplémentaire'}
-                    </p>
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <button class="btn btn-sm btn-outline-primary view-item-${type}" data-id="${item.id}">
-                            <i class="bi bi-eye"></i> Voir les détails
-                        </button>
-                        ${isAdmin ? `
-                            <div class="btn-group">
-                                <button class="btn btn-sm btn-outline-success mark-returned" data-id="${item.id}" ${item.returned ? 'disabled' : ''}>
-                                    <i class="bi bi-check-lg"></i> Restitué
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger delete-item" data-id="${item.id}">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        ` : ''}
-                    </div>
+    // Créer un élément DOM
+    const colDiv = document.createElement('div');
+    colDiv.className = 'col mb-4';
+    
+    // Construire le contenu de la carte
+    colDiv.innerHTML = `
+        <div class="card h-100">
+            ${item.photo_path ? `
+                <img src="${API_BASE_URL}/${item.photo_path}" class="card-img-top" alt="${item.description}" 
+                     onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Image+non+disponible'">
+            ` : `
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="bi ${type === 'found' ? 'bi-check-circle' : 'bi-search'} text-${type === 'found' ? 'success' : 'warning'}" style="font-size: 3rem;"></i>
                 </div>
+            `}
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title mb-0">${item.description}</h5>
+                    <span class="badge ${badgeClass}">${isReturned}</span>
+                </div>
+                <p class="card-text">
+                    <small><i class="bi bi-calendar"></i> ${date}</small>
+                </p>
+                <button class="btn btn-sm btn-outline-primary view-item-${type}" data-id="${item.id}">
+                    <i class="bi bi-eye"></i> Voir détails
+                </button>
             </div>
         </div>
     `;
+    
+    // Ajouter l'event listener pour le bouton de détails
+    const viewButton = colDiv.querySelector(`.view-item-${type}`);
+    if (viewButton) {
+        viewButton.addEventListener('click', function() {
+            if (typeof showItemDetails === 'function') {
+                showItemDetails(this.getAttribute('data-id'), type);
+            }
+        });
+    }
+    
+    return colDiv;
 }
 
 // Show Item Details
 async function showItemDetails(itemId, type) {
+    // Vérifier que le modal est disponible
+    if (!itemDetailsModal) {
+        console.warn('itemDetailsModal n\'est pas disponible sur cette page');
+        return;
+    }
+    
     try {
         const response = await fetch(`${API_BASE_URL}/api/items/${itemId}`);
-        if (!response.ok) throw new Error('Item not found');
+        if (!response.ok) throw new Error('Failed to fetch item details');
         
         const item = await response.json();
-        currentItem = item;
         
-        // Update modal content
-        document.getElementById('itemModalTitle').textContent = item.description;
-        document.getElementById('itemDescription').textContent = item.description;
-        document.getElementById('itemDate').textContent = new Date(item.date).toLocaleString('fr-FR');
-        document.getElementById('itemDetails').textContent = item.details || 'Aucun détail supplémentaire';
-        // Affiche le contact si présent
-        const contactElem = document.getElementById('itemContact');
-        if (contactElem) {
-            contactElem.textContent = item.contact ? item.contact : 'Non renseigné';
-            contactElem.parentElement.style.display = item.contact ? '' : 'none';
+        // Vérifier l'existence des éléments DOM avant de les manipuler
+        const itemDetailsTitle = document.getElementById('itemDetailsTitle');
+        const itemDetailsDescription = document.getElementById('itemDetailsDescription'); 
+        const itemDetailsDate = document.getElementById('itemDetailsDate');
+        const itemDetailsStatus = document.getElementById('itemDetailsStatus');
+        const contactElement = document.getElementById('itemDetailsContact');
+        const contactRow = document.getElementById('contactRow');
+        const markReturnedBtn = document.getElementById('markReturnedBtn');
+        const deleteItemBtn = document.getElementById('deleteItemBtn');
+        
+        // Mettre à jour le contenu seulement si les éléments existent
+        if (itemDetailsTitle) itemDetailsTitle.textContent = type === 'found' ? 'Objet trouvé' : 'Objet perdu';
+        if (itemDetailsDescription) itemDetailsDescription.textContent = item.description;
+        if (itemDetailsDate) itemDetailsDate.textContent = new Date(item.date).toLocaleString('fr-FR');
+        
+        if (itemDetailsStatus) {
+            itemDetailsStatus.textContent = item.returned ? 'Restitué' : 'Non restitué';
+            itemDetailsStatus.className = `badge ${item.returned ? 'bg-secondary' : 'bg-primary'}`;
         }
         
-        // Update image
-        const imgContainer = document.getElementById('itemImageContainer');
-        const imgElement = document.getElementById('itemImage');
-        
-        if (item.photo_path) {
-            imgElement.src = `${API_BASE_URL}/${item.photo_path}`;
-            imgElement.style.display = 'block';
-        } else {
-            imgContainer.innerHTML = `
-                <div class="text-center p-5 bg-light w-100">
-                    <i class="bi bi-image fs-1 text-muted"></i>
-                    <p class="mt-2 mb-0 text-muted">Aucune image disponible</p>
-                </div>`;
+        // Afficher les infos de contact si disponibles
+        if (contactElement && contactRow) {
+            if (item.contact) {
+                contactElement.textContent = item.contact;
+                contactRow.style.display = 'flex';
+            } else {
+                contactRow.style.display = 'none';
+            }
         }
         
-        // Update status badge
-        const statusBadge = document.createElement('span');
-        statusBadge.className = `badge ${item.returned ? 'bg-secondary' : (type === 'found' ? 'bg-success' : 'bg-warning text-dark')}`;
-        statusBadge.textContent = item.returned ? 'RESTITUÉ' : (type === 'found' ? 'TROUVÉ' : 'PERDU');
-        document.getElementById('itemStatus').innerHTML = '';
-        document.getElementById('itemStatus').appendChild(statusBadge);
+        // Configurer les boutons d'action s'ils existent
+        if (markReturnedBtn) markReturnedBtn.onclick = () => markAsReturned(itemId);
+        if (deleteItemBtn) deleteItemBtn.onclick = () => deleteItem(itemId);
         
-        // Show/hide admin actions
-        document.getElementById('adminActions').style.display = isAdmin ? 'block' : 'none';
-        
-        // Setup action buttons
-        document.getElementById('markReturnedBtn').onclick = () => markAsReturned(itemId);
-        document.getElementById('deleteItemBtn').onclick = () => deleteItem(itemId);
-        
-        // Show modal
+        // Afficher le modal
         itemDetailsModal.show();
         
     } catch (error) {

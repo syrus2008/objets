@@ -120,6 +120,7 @@ async def create_found_item(
     description: str = Form(...),
     date: str = Form(...),
     details: str = Form(None),
+    contact: str = Form(...),  # Champ de contact obligatoire
     photo: UploadFile = File(...)
 ):
     # Save photo

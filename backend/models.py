@@ -17,6 +17,7 @@ class LostItemCreate(ItemBase):
     contact: Optional[str] = None
 
 class FoundItemCreate(ItemBase):
+    contact: str
     pass
 
 class Item(ItemBase):
