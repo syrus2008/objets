@@ -4,11 +4,10 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from typing import List
 import uvicorn
 import os
-import sys
 from dotenv import load_dotenv
 
-# Ajouter le dossier backend au PATH Python
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Ajouter le dossier parent au PATH Python
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from app.api import api
 from app.storage import Storage
