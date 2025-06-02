@@ -16,8 +16,21 @@ const loginBtn = document.getElementById('loginBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 const passwordInput = document.getElementById('password');
 const loginError = document.getElementById('loginError');
-const adminLoginModal = new bootstrap.Modal(document.getElementById('adminLoginModal'));
-const itemDetailsModal = new bootstrap.Modal(document.getElementById('itemDetailsModal'));
+let adminLoginModal = null;
+const adminLoginModalElem = document.getElementById('adminLoginModal');
+if (adminLoginModalElem) {
+    adminLoginModal = new bootstrap.Modal(adminLoginModalElem);
+} else {
+    console.error('adminLoginModal element not found');
+}
+
+let itemDetailsModal = null;
+const itemDetailsModalElem = document.getElementById('itemDetailsModal');
+if (itemDetailsModalElem) {
+    itemDetailsModal = new bootstrap.Modal(itemDetailsModalElem);
+} else {
+    console.error('itemDetailsModal element not found');
+}
 const exportJsonBtn = document.getElementById('exportJson');
 const exportCsvBtn = document.getElementById('exportCsv');
 

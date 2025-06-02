@@ -255,23 +255,37 @@
                 }
             });
             
+            // Fonction showSuccess utilisable partout
+            function showSuccess(type, responseData) {
+                if (!successModal) {
+                    console.error('Le modal de succès est introuvable');
+                    return;
+                }
+                const successTitle = document.getElementById('successTitle');
+                const successMessage = document.getElementById('successMessage');
+                const matchingItemsSection = document.getElementById('matchingItems');
+                const matchingItemsList = document.getElementById('matchingItemsList');
+                // Update success message based on type
+                if (type === 'found') {
+                    successTitle.textContent = 'Objet trouvé signalé avec succès !';
+                    successMessage.textContent = 'Merci d\'avoir signalé cet objet. Si le propriétaire se manifeste, nous vous contacterons.';
+                } else {
+                    successTitle.textContent = 'Objet perdu signalé avec succès !';
+                    successMessage.textContent = 'Merci d\'avoir signalé la perte. Nous vous contacterons si l\'objet est retrouvé.';
+                }
+                // Hide matching items by default
+                matchingItemsSection.classList.add('d-none');
+                matchingItemsList.innerHTML = '';
+                successModal.show();
+                successModal._element.addEventListener('hidden.bs.modal', function handler() {
+                    successModal._element.removeEventListener('hidden.bs.modal', handler);
+                    window.location.href = '/index.html';
+                });
+            }
+            
             // Form submissions
             document.getElementById('foundForm').addEventListener('submit', handleFoundSubmit);
             document.getElementById('lostForm').addEventListener('submit', handleLostSubmit);
-            
-            // Add another button in success modal
-            document.getElementById('addAnotherBtn').addEventListener('click', function() {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('successModal'));
-                modal.hide();
-                // Reset forms
-                document.getElementById('foundForm').reset();
-                document.getElementById('lostForm').reset();
-                foundPreview.style.display = 'none';
-                // Reset to found form
-                document.getElementById('foundBtn').checked = true;
-                document.getElementById('foundForm').classList.add('active');
-                document.getElementById('lostForm').classList.remove('active');
-            });
         });
         
         async function handleFoundSubmit(e) {
@@ -315,7 +329,6 @@
                 details: document.getElementById('lostDetails').value,
                 contact: document.getElementById('lostContact').value
             };
-            
             try {
                 const response = await fetch(`${window.location.hostname === 'localhost' ? 'http://localhost:8000' : ''}/api/lost`, {
                     method: 'POST',
@@ -324,69 +337,28 @@
                     },
                     body: JSON.stringify(itemData)
                 });
-                
-                const data = await response.json();
-                
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    data = { detail: 'Réponse JSON invalide' };
+                }
                 if (response.ok) {
                     showSuccess('lost', data);
                 } else {
-                    throw new Error(data.detail || 'Erreur lors de l\'envoi des données');
+                    let errMsg = '';
+                    if (Array.isArray(data.detail)) {
+                        errMsg = data.detail.map(d => d.msg).join(' | ');
+                    } else {
+                        errMsg = data.detail || 'Erreur lors de l\'envoi des données';
+                    }
+                    alert('Erreur: ' + errMsg);
+                    throw new Error(errMsg);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Une erreur est survenue. Veuillez réessayer.');
+                alert('Une erreur est survenue. ' + (error.message || 'Veuillez réessayer.'));
             }
-        }
-        
-        function showSuccess(type, responseData) {
-            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-            const successTitle = document.getElementById('successTitle');
-            const successMessage = document.getElementById('successMessage');
-            const matchingItemsSection = document.getElementById('matchingItems');
-            const matchingItemsList = document.getElementById('matchingItemsList');
-            
-            // Update success message based on type
-            if (type === 'found') {
-                successTitle.textContent = 'Objet trouvé signalé avec succès !';
-                successMessage.textContent = 'Merci d\'avoir signalé cet objet. Si le propriétaire se manifeste, nous vous contacterons.';
-            } else {
-                successTitle.textContent = 'Objet perdu signalé avec succès !';
-                successMessage.textContent = 'Nous avons enregistré votre déclaration. Si quelqu\'un trouve votre objet, nous vous contacterons.';
-            }
-            
-            // Check for matching items
-            if (responseData.matches && responseData.matches.length > 0) {
-                matchingItemsSection.classList.remove('d-none');
-                matchingItemsList.innerHTML = '';
-                
-                responseData.matches.forEach(item => {
-                    const itemElement = document.createElement('a');
-                    itemElement.href = '#';
-                    itemElement.className = 'list-group-item list-group-item-action';
-                    itemElement.innerHTML = `
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">${item.description}</h6>
-                            <small>${new Date(item.date).toLocaleString('fr-FR')}</small>
-                        </div>
-                        <p class="mb-1 small text-muted">${item.details || 'Aucun détail supplémentaire'}</p>
-                    `;
-                    itemElement.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        // Here you would typically show more details or navigate to the item
-                        alert('Fonctionnalité de détail à implémenter');
-                    });
-                    
-                    matchingItemsList.appendChild(itemElement);
-                });
-            } else {
-                matchingItemsSection.classList.add('d-none');
-            }
-            
-            successModal.show();
-            successModal._element.addEventListener('hidden.bs.modal', function handler() {
-                successModal._element.removeEventListener('hidden.bs.modal', handler);
-                window.location.href = '/index.html';
-            });
         }
     </script>
 </body>
