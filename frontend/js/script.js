@@ -229,6 +229,12 @@ async function showItemDetails(itemId, type) {
         document.getElementById('itemDescription').textContent = item.description;
         document.getElementById('itemDate').textContent = new Date(item.date).toLocaleString('fr-FR');
         document.getElementById('itemDetails').textContent = item.details || 'Aucun détail supplémentaire';
+        // Affiche le contact si présent
+        const contactElem = document.getElementById('itemContact');
+        if (contactElem) {
+            contactElem.textContent = item.contact ? item.contact : 'Non renseigné';
+            contactElem.parentElement.style.display = item.contact ? '' : 'none';
+        }
         
         // Update image
         const imgContainer = document.getElementById('itemImageContainer');

@@ -14,7 +14,7 @@ class ItemBase(BaseModel):
     returned: bool = False
 
 class LostItemCreate(ItemBase):
-    pass
+    contact: Optional[str] = None
 
 class FoundItemCreate(ItemBase):
     pass
@@ -23,6 +23,7 @@ class Item(ItemBase):
     id: str
     type: ItemType
     photo_path: Optional[str] = None
+    contact: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 

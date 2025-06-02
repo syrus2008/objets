@@ -98,8 +98,8 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label for="foundPhoto" class="form-label">Photo de l'objet</label>
-                                <input class="form-control" type="file" id="foundPhoto" accept="image/*">
+                                <label for="foundImage" class="form-label">Photo de l'objet</label>
+                                <input class="form-control" type="file" id="foundImage" name="image" accept="image/*" capture="environment">
                                 <div class="form-text">Une photo claire aide à l'identification de l'objet.</div>
                                 <img id="foundPreview" class="preview-image" alt="Aperçu de l'image">
                             </div>
@@ -119,6 +119,11 @@
                         
                         <!-- Lost Item Form -->
                         <form id="lostForm" class="form-section">
+                            <div class="mb-3">
+                                <label for="lostContact" class="form-label">Contact (nom, email ou téléphone) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="lostContact" name="contact" required placeholder="Ex : Jean Dupont, 06 12 34 56 78 ou jean@email.com">
+                                <div class="form-text">Ces informations serviront à vous prévenir si l'objet est retrouvé.</div>
+                            </div>
                             <h3 class="h5 mb-4 text-warning"><i class="bi bi-exclamation-triangle"></i> Objet perdu</h3>
                             
                             <div class="mb-3">

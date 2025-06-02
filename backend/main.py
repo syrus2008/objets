@@ -138,6 +138,7 @@ async def create_found_item(
         "date": date,
         "details": details,
         "photo_path": file_path,
+        "contact": contact,
         "returned": False,
         "created_at": datetime.utcnow().isoformat(),
         "updated_at": datetime.utcnow().isoformat()
