@@ -31,17 +31,17 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="index.html">Objets Perdus/Trouvés</a>
+            <a class="navbar-brand" href="/index.html">Objets Perdus/Trouvés</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Accueil</a>
+                        <a class="nav-link" href="/index.html"><i class="bi bi-house-door"></i> Accueil</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="signaler.html"><i class="bi bi-plus-circle"></i> Signaler un objet</a>
+                        <a class="nav-link active" href="/signaler.html"><i class="bi bi-plus-circle"></i> Signaler un objet</a>
                     </li>
                 </ul>
             </div>
@@ -156,7 +156,7 @@
                 </div>
                 
                 <div class="text-center mt-4">
-                    <a href="index.html" class="btn btn-outline-secondary">
+                    <a href="/index.html" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left"></i> Retour à la liste des objets
                     </a>
                 </div>
@@ -193,7 +193,7 @@
                     </div>
                 </div>
                 <div class="modal-footer justify-content-center">
-                    <a href="index.html" class="btn btn-primary me-2">
+                    <a href="/index.html" class="btn btn-primary me-2">
                         <i class="bi bi-house-door"></i> Retour à l'accueil
                     </a>
                     <button type="button" class="btn btn-outline-secondary" id="addAnotherBtn">
@@ -283,7 +283,7 @@
             }
             
             try {
-                const response = await fetch('http://localhost:8000/api/found', {
+                const response = await fetch(`${window.location.hostname === 'localhost' ? 'http://localhost:8000' : ''}/api/found`, {
                     method: 'POST',
                     body: formData
                 });
@@ -311,7 +311,7 @@
             };
             
             try {
-                const response = await fetch('http://localhost:8000/api/lost', {
+                const response = await fetch(`${window.location.hostname === 'localhost' ? 'http://localhost:8000' : ''}/api/lost`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
