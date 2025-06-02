@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from .api import router as api_router
 from .storage import Storage
 from .auth import AuthManager
