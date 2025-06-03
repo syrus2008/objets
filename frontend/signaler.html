@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signaler un objet perdu/trouvé - Festival</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .form-section {
+            display: none;
+        }
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/index.html">Objets Perdus/Trouvés</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/index.html"><i class="bi bi-house-door"></i> Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/signaler.html"><i class="bi bi-plus-circle"></i> Signaler un objet</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h4 mb-0"><i class="bi bi-plus-circle"></i> Signaler un objet</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Veuillez sélectionner le type d'objet que vous souhaitez signaler.
+                        </div>
+                        
+                        <div class="text-center mb-4">
+                            <div class="btn-group" role="group" aria-label="Type d'objet">
+                                <input type="radio" class="btn-check" name="itemType" id="foundBtn" autocomplete="off" checked>
+                                <label class="btn btn-outline-success btn-lg px-4" for="foundBtn">
+                                    <i class="bi bi-check-circle"></i> Objet trouvé
+                                </label>
+                                
+                                <input type="radio" class="btn-check" name="itemType" id="lostBtn" autocomplete="off">
+                                <label class="btn btn-outline-warning btn-lg px-4" for="lostBtn">
+                                    <i class="bi bi-exclamation-triangle"></i> Objet perdu
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Found Item Form -->
+                        <form id="foundForm" class="form-section active" enctype="multipart/form-data">
+                            <h3 class="h5 mb-4 text-success"><i class="bi bi-check-circle"></i> Objet trouvé</h3>
+                            
+                            <div class="mb-3">
+                                <label for="foundDescription" class="form-label">Description de l'objet <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="foundDescription" required 
+                                       placeholder="Ex: Portefeuille noir, clés avec porte-clés rouge, etc.">
+                                <div class="form-text">Décrivez l'objet de manière précise.</div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="foundDate" class="form-label">Date et heure de la découverte <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" class="form-control" id="foundDate" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="foundLocation" class="form-label">Lieu de la découverte</label>
+                                    <input type="text" class="form-control" id="foundLocation" 
+                                           placeholder="Ex: Scène principale, Bar, Toilettes, etc.">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="foundImage" class="form-label">Photo de l'objet</label>
+                                <input class="form-control" type="file" id="foundImage" name="image" accept="image/*" capture="environment">
+                                <div class="form-text">Une photo claire aide à l'identification de l'objet.</div>
+                                <img id="foundPreview" class="preview-image" alt="Aperçu de l'image">
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="foundDetails" class="form-label">Détails supplémentaires</label>
+                                <textarea class="form-control" id="foundDetails" rows="3" 
+                                          placeholder="Décrivez tout élément distinctif, contenu, ou autre détail utile."></textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="bi bi-send"></i> Signaler l'objet trouvé
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Lost Item Form -->
+                        <form id="lostForm" class="form-section">
+                            <div class="mb-3">
+                                <label for="lostContact" class="form-label">Contact (nom, email ou téléphone) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="lostContact" name="contact" required placeholder="Ex : Jean Dupont, 06 12 34 56 78 ou jean@email.com">
+                                <div class="form-text">Ces informations serviront à vous prévenir si l'objet est retrouvé.</div>
+                            </div>
+                            <h3 class="h5 mb-4 text-warning"><i class="bi bi-exclamation-triangle"></i> Objet perdu</h3>
+                            
+                            <div class="mb-3">
+                                <label for="lostDescription" class="form-label">Description de l'objet perdu <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="lostDescription" required
+                                       placeholder="Ex: Portefeuille noir, clés avec porte-clés rouge, etc.">
+                                <div class="form-text">Décrivez l'objet de manière précise.</div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="lostDate" class="form-label">Date et heure estimée de la perte <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" class="form-control" id="lostDate" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="lostLocation" class="form-label">Lieu supposé de la perte</label>
+                                    <input type="text" class="form-control" id="lostLocation" 
+                                           placeholder="Ex: Scène principale, Bar, Toilettes, etc.">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="lostDetails" class="form-label">Détails supplémentaires</label>
+                                <textarea class="form-control" id="lostDetails" rows="4"
+                                          placeholder="Décrivez tout élément distinctif, contenu, ou autre détail qui pourrait aider à l'identification. Mentionnez également comment vous contacter si l'objet est retrouvé."></textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-warning btn-lg">
+                                    <i class="bi bi-send"></i> Signaler l'objet perdu
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="/index.html" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour à la liste des objets
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">© 2023 Festival des Objets Perdus - Tous droits réservés</p>
+        </div>
+    </footer>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-check-circle"></i> Succès</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 id="successTitle">Objet signalé avec succès !</h4>
+                    <p id="successMessage" class="mb-0">Merci d'avoir signalé cet objet. Nous vous contacterons s'il est retrouvé.</p>
+                    
+                    <div id="matchingItems" class="mt-4 text-start d-none">
+                        <h5 class="h6 mb-3">Objets similaires récemment signalés :</h5>
+                        <div id="matchingItemsList" class="list-group">
+                            <!-- Matching items will be added here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <a href="/index.html" class="btn btn-primary me-2">
+                        <i class="bi bi-house-door"></i> Retour à l'accueil
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary" id="addAnotherBtn">
+                        <i class="bi bi-plus-circle"></i> Ajouter un autre objet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/script.js"></script>
+    <script>
+        // Variables
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:8000' 
+            : 'https://objets-objects2.up.railway.app';
+        
+        let successModal;
+            
+        // Show Form based on selection
+        function showForm(type) {
+            const lostForm = document.getElementById('lostForm');
+            const foundForm = document.getElementById('foundForm');
+            if (lostForm) lostForm.style.display = type === 'lost' ? 'block' : 'none';
+            if (foundForm) foundForm.style.display = type === 'found' ? 'block' : 'none';
+        }
+        
+        // Preview uploaded photo
+        function previewFile() {
+            const preview = document.getElementById('photoPreview');
+            const fileInput = document.getElementById('foundPhoto');
+            
+            if (!preview || !fileInput) return;
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onloadend = function () {
+                preview.src = reader.result;
+                preview.style.display = 'block';
+            }
+            
+            if (file) {
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
+        }
+        
+        // Initialize Bootstrap modals
+        function initializeModals() {
+            const successModalElem = document.getElementById('successModal');
+            if (successModalElem) {
+                try {
+                    successModal = new bootstrap.Modal(successModalElem);
+                } catch (error) {
+                    console.error('Erreur lors de l\'initialisation du modal de succès:', error);
+                }
+            }
+        }
+        
+        // Event listeners on DOM load
+        document.addEventListener('DOMContentLoaded', function() {
+            const foundBtn = document.getElementById('foundBtn');
+            const lostBtn = document.getElementById('lostBtn');
+            const foundPhoto = document.getElementById('foundPhoto');
+            const addAnotherBtn = document.getElementById('addAnotherBtn');
+            
+            // Vérifier l'existence des éléments avant d'ajouter les écouteurs
+            if (foundBtn) foundBtn.addEventListener('change', () => showForm('found'));
+            if (lostBtn) lostBtn.addEventListener('change', () => showForm('lost'));
+            
+            // File input preview
+            if (foundPhoto) foundPhoto.addEventListener('change', previewFile);
+            
+            // Initialize success modal
+            initializeModals();
+            
+            // Add another item button
+            if (addAnotherBtn) addAnotherBtn.addEventListener('click', function() {
+                const foundForm = document.getElementById('foundForm');
+                const lostForm = document.getElementById('lostForm');
+                const foundBtn = document.getElementById('foundBtn');
+                
+                if (foundForm) foundForm.reset();
+                if (lostForm) lostForm.reset();
+                if (foundBtn) foundBtn.checked = true;
+                
+                showForm('found');
+                if (successModal) successModal.hide();
+            });
+            
+            // Set default date/time for both forms
+            document.getElementById('foundDate').value = formattedNow;
+            document.getElementById('lostDate').value = formattedNow;
+            
+            // Ce code est remplacé par la fonction showForm() maintenant
+            
+            // Image preview for found items
+            const foundPhotoInput = document.getElementById('foundPhoto');
+            const foundPreview = document.getElementById('foundPreview');
+            
+            foundPhotoInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        foundPreview.src = e.target.result;
+                        foundPreview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    foundPreview.style.display = 'none';
+                }
+            });
+            
+            // Initialisation des modals Bootstrap
+            function initializeModals() {
+                const successModalElement = document.getElementById('successModal');
+                if (successModalElement) {
+                    try {
+                        successModal = new bootstrap.Modal(successModalElement);
+                    } catch (error) {
+                        console.error('Erreur d\'initialisation du modal de succès:', error);
+                    }
+                } else {
+                    console.error('Element successModal introuvable dans le DOM');
+                }
+            }
+            
+            // Fonction pour prévisualiser l'image
+            function previewFile() {
+                const preview = document.getElementById('foundPreview');
+                const file = this.files[0];
+                
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.style.display = 'none';
+                }
+            }
+            
+            // Fonction showSuccess utilisable partout
+            function showSuccess(type, responseData) {
+                if (!successModal) {
+                    console.error('Le modal de succès est introuvable');
+                    return;
+                }
+                const successTitle = document.getElementById('successTitle');
+                const successMessage = document.getElementById('successMessage');
+                const matchingItemsSection = document.getElementById('matchingItems');
+                const matchingItemsList = document.getElementById('matchingItemsList');
+                // Update success message based on type
+                if (type === 'found') {
+                    successTitle.textContent = 'Objet trouvé signalé avec succès !';
+                    successMessage.textContent = 'Merci d\'avoir signalé cet objet. Si le propriétaire se manifeste, nous vous contacterons.';
+                } else {
+                    successTitle.textContent = 'Objet perdu signalé avec succès !';
+                    successMessage.textContent = 'Merci d\'avoir signalé la perte. Nous vous contacterons si l\'objet est retrouvé.';
+                }
+                // Hide matching items by default
+                matchingItemsSection.classList.add('d-none');
+                matchingItemsList.innerHTML = '';
+                successModal.show();
+                successModal._element.addEventListener('hidden.bs.modal', function handler() {
+                    successModal._element.removeEventListener('hidden.bs.modal', handler);
+                    window.location.href = '/index.html';
+                });
+            }
+            
+            // Form submissions
+            document.getElementById('foundForm').addEventListener('submit', handleFoundSubmit);
+            document.getElementById('lostForm').addEventListener('submit', handleLostSubmit);
+        });
+        
+        async function handleFoundSubmit(e) {
+            e.preventDefault();
+            
+            // Vérification des champs obligatoires côté client
+            const description = document.getElementById('foundDescription').value.trim();
+            const date = document.getElementById('foundDate').value.trim();
+            
+            if (!description) {
+                alert('La description de l\'objet est obligatoire');
+                return;
+            }
+            if (!date) {
+                alert('La date de découverte est obligatoire');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('description', description);
+            formData.append('date', date);
+            formData.append('details', document.getElementById('foundDetails').value.trim() || 'Aucun détail');
+            
+            const photoInput = document.getElementById('foundPhoto');
+            if (photoInput.files.length > 0) {
+                formData.append('photo', photoInput.files[0]);
+            }
+            
+            try {
+                const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://objets-objects2.up.railway.app';
+                
+                const response = await fetch(`${API_BASE_URL}/api/found`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess('found', data);
+                } else {
+                    throw new Error(data.detail || 'Erreur lors de l\'envoi des données');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Une erreur est survenue. Veuillez réessayer.');
+            }
+        }
+        
+        async function handleLostSubmit(e) {
+            e.preventDefault();
+            
+            // Vérification des champs obligatoires côté client
+            const description = document.getElementById('lostDescription').value.trim();
+            const date = document.getElementById('lostDate').value.trim();
+            const contact = document.getElementById('lostContact').value.trim();
+            const details = document.getElementById('lostDetails').value.trim();
+            
+            if (!description) {
+                alert('La description de l\'objet est obligatoire');
+                return;
+            }
+            if (!date) {
+                alert('La date de perte est obligatoire');
+                return;
+            }
+            if (!contact) {
+                alert('Un contact est obligatoire');
+                return;
+            }
+            
+            // Construction du payload avec tous les champs requis
+            const itemData = {
+                description: description,
+                date: date,
+                details: details || 'Aucun détail supplémentaire',
+                contact: contact
+            };
+            
+            try {
+                const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://objets-objects2.up.railway.app';
+                
+                const response = await fetch(`${API_BASE_URL}/api/lost`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(itemData)
+                });
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    data = { detail: 'Réponse JSON invalide' };
+                }
+                if (response.ok) {
+                    showSuccess('lost', data);
+                } else {
+                    let errMsg = '';
+                    if (Array.isArray(data.detail)) {
+                        errMsg = data.detail.map(d => d.msg).join(' | ');
+                    } else {
+                        errMsg = data.detail || 'Erreur lors de l\'envoi des données';
+                    }
+                    alert('Erreur: ' + errMsg);
+                    throw new Error(errMsg);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Une erreur est survenue. ' + (error.message || 'Veuillez réessayer.'));
+            }
+        }
+    </script>
+</body>
+</html>

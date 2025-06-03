@@ -1,0 +1,9 @@
+fastapi>=0.103.0
+uvicorn[standard]>=0.23.0
+python-multipart
+python-jose[cryptography]
+passlib[bcrypt]
+python-dotenv
+pydantic>=2.0.0
+python-magic
+python-magic-bin; sys_platform == 'win32'
